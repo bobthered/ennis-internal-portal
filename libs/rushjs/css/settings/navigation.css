@@ -1,0 +1,7 @@
+:root{
+    --navigation-background-color : var(--color-primary);
+    --navigation-height: 100vh;
+    --navItem-after-background-color: var(--color-primary-100);
+    --navItem-current-background-color: #fff;
+    --navItem-current-after-background-color: var(--color-primary);
+}

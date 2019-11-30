@@ -1,0 +1,40 @@
+flexColumn,
+flexRow {
+    display: flex;
+}
+flexColumn[alignItems="center"],
+flexRow[alignItems="center"] {
+    align-items: center;
+}
+flexColumn[alignItems="flexStart"],
+flexRow[alignItems="flexStart"] {
+    align-items: flex-start;
+}
+flexColumn[alignItems="spaceBetween"],
+flexRow[alignItems="spaceBetween"] {
+    align-items: space-between;
+}
+flexColumn[justify="center"],
+flexRow[justify="center"] {
+    justify-content: center;
+}
+flexColumn[justify="flexStart"],
+flexRow[justify="flexStart"] {
+    justify-content: flex-start;
+}
+flexColumn[justify="spaceBetween"],
+flexRow[justify="spaceBetween"] {
+    justify-content: space-between;
+}
+flexColumn {
+    flex-direction: column;
+}
+flexColumn > *:not(:last-child) {
+    margin-bottom: 1rem;
+}
+flexRow {
+    flex-direction: row;
+}
+flexRow  > *:not(:last-child) {
+    margin-right: 1rem;
+}

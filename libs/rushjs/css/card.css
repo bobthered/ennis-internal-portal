@@ -1,0 +1,6 @@
+card {
+    box-shadow: var(--card-box-shadow);
+    display: flex;
+    flex-direction: column;
+    padding: var(--card-padding);
+}

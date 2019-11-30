@@ -1,0 +1,22 @@
+[rushIcon] {
+    position: relative;
+}
+[rushIcon]:after {
+    content: '';
+    background-color: var(--color-primary);
+    height: 100%;
+    mask-position: center center;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center center;
+    -webkit-mask-repeat: no-repeat;
+    position: absolute;
+    width: 100%;
+}
+[rushIcon="dashboard"]:after {
+    -webkit-mask-image: url("../svgs/24/basic/dashboard.svg");
+    mask-image: url("../svgs/24/basic/dashboard.svg");
+}
+[rushIcon="calculator"]:after {
+    -webkit-mask-image: url("../svgs/24/basic/calculator.svg");
+    mask-image: url("../svgs/24/basic/calculator.svg");
+}

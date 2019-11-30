@@ -1,0 +1,14 @@
+app {
+    background-color:#fff;
+    box-shadow: 0 0 20px rgba(0,0,0,0);
+    height: 100vh;
+    left: var(--navigation-width);
+    position: fixed;
+    top:0;
+    transition: var(--transition);
+    width: calc( 100vw - var(--navigation-width));
+}
+body[showSubNavigation] app{
+    box-shadow: 0 0 20px rgba(0,0,0,.1);
+    transform: translateX( var(--subNavigation-width));
+}

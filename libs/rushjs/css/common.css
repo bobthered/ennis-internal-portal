@@ -1,0 +1,32 @@
+padding,
+paddingTB,
+paddingLR,
+paddingT,
+paddingB,
+paddingL,
+paddingR { 
+    display: flex;
+}
+padding { 
+    padding: var(--padding);
+}
+paddingTB {
+    padding-top: var(--padding);
+    padding-bottom: var(--padding);
+}
+paddingLR {
+    padding-left: var(--padding);
+    padding-right: var(--padding);
+}
+paddingT {
+    padding-top: var(--padding);
+}
+paddingB {
+    padding-bottom: var(--padding);
+}
+paddingL {
+    padding-left: var(--padding);
+}
+paddingR {
+    padding-right: var(--padding);
+}

@@ -1,0 +1,11 @@
+:root {
+    --input-border-radius: .25rem;
+    --input-height: 40px;
+    /* --navigation-width: 56px; */
+    --navigation-width: 0;
+    --subNavigation-width: 250px;
+    --header-width: calc(var(--navigation-width) + var(--subNavigation-width));
+
+    --padding: 1rem;
+    --transition: all .2s;
+}

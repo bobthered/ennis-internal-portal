@@ -1,0 +1,4 @@
+subNavigation {
+    padding: var(--subNavigation-padding);
+    width: var(--subNavigation-width);
+}

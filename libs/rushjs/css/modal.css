@@ -1,0 +1,26 @@
+modalContainer {
+    background-color: rgba(0,0,0,.7);
+    height: 100vh;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100vw;
+}
+modalContainer[hidden] {
+    opacity: 0;
+    pointer-events: none;
+}
+modal {
+    align-items: center;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    left: 50%;
+    padding: var(--padding);
+    position: absolute;
+    top: 50%;
+    transform: translate( -50%, -50% );
+}
+modal message {
+    line-height: 1.5rem;
+}

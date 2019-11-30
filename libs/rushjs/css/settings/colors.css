@@ -1,0 +1,58 @@
+:root {
+    --color-materialRed-900 : #b71c1c;
+    --color-materialRed-800 : #c62828;
+    --color-materialRed-700 : #d32f2f;
+    --color-materialRed-600 : #e53935;
+    --color-materialRed-500 : #f44336;
+    --color-materialRed-400 : #ef5350;
+    --color-materialRed-300 : #e57373;
+    --color-materialRed-200 : #ef9a9a;
+    --color-materialRed-100 : #ffcdd2;
+    --color-materialRed-50  : #ffebee;
+
+    --color-rushBlue-900 : #3D41A8;
+    --color-rushBlue-800 : #4361C9;
+    --color-rushBlue-700 : #4773DB;
+    --color-rushBlue-600 : #4B85F0;
+    --color-rushBlue-500 : #4C94FF;
+    --color-rushBlue-400 : #5AA3FF;
+    --color-rushBlue-300 : #72B4FF;
+    --color-rushBlue-200 : #98C9FF;
+    --color-rushBlue-100 : #C0DEFF;
+    --color-rushBlue-50  : #C0DEFF;
+
+    --color-rushGray-900 : #1B1B1B;
+    --color-rushGray-800 : #3B3B3B;
+    --color-rushGray-700 : #5A5A5A;
+    --color-rushGray-600 : #6E6E6E;
+    --color-rushGray-500 : #969696;
+    --color-rushGray-400 : #B6B6B6;
+    --color-rushGray-300 : #DADADA;
+    --color-rushGray-200 : #E9E9E9;
+    --color-rushGray-100 : #F2F2F2;
+    --color-rushGray-50  : #F9F9F9;
+
+    --color-primary-900 : var(--color-rushBlue-900);
+    --color-primary-800 : var(--color-rushBlue-800);
+    --color-primary-700 : var(--color-rushBlue-700);
+    --color-primary-600 : var(--color-rushBlue-600);
+    --color-primary-500 : var(--color-rushBlue-500);
+    --color-primary-400 : var(--color-rushBlue-400);
+    --color-primary-300 : var(--color-rushBlue-300);
+    --color-primary-200 : var(--color-rushBlue-200);
+    --color-primary-100 : var(--color-rushBlue-100);
+    --color-primary-50  : var(--color-rushBlue-50);
+    --color-primary     : var(--color-primary-500);
+
+    --color-error-900 : var(--color-materialRed-900);
+    --color-error-800 : var(--color-materialRed-800);
+    --color-error-700 : var(--color-materialRed-700);
+    --color-error-600 : var(--color-materialRed-600);
+    --color-error-500 : var(--color-materialRed-500);
+    --color-error-400 : var(--color-materialRed-400);
+    --color-error-300 : var(--color-materialRed-300);
+    --color-error-200 : var(--color-materialRed-200);
+    --color-error-100 : var(--color-materialRed-100);
+    --color-error-50  : var(--color-materialRed-50);
+    --color-error     : var(--color-error-500);
+}

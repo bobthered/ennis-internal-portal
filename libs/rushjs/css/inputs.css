@@ -1,0 +1,54 @@
+inputContainer {
+    height: var(--input-height);
+    position: relative;
+}
+input, select, textarea {
+    background-color: var(--input-background-color);
+    border: none;
+    box-shadow: var(--input-box-shadow);
+    box-sizing: border-box;
+    border-radius: var(--input-border-radius);
+    font-size: 1rem;
+    height: 100%;
+    padding: 0 .5rem;
+    transition: var(--transition);
+    -webkit-appearance: none;
+    width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+    box-shadow: var(--input-focus-box-shadow);
+    color: var(--font-color);
+    outline: none;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active,
+select:-webkit-autofill,
+select:-webkit-autofill:hover, 
+select:-webkit-autofill:focus, 
+select:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover, 
+textarea:-webkit-autofill:focus, 
+textarea:-webkit-autofill:active
+{
+    -webkit-box-shadow: var(--input-box-shadow), 0 0 0 999px white inset !important;
+}
+label {
+    align-items: center;
+    background-color: var(--input-background-color);
+    color: var(--label-color);
+    display: flex;
+    font-size: .75rem;
+    left: .0rem;
+    padding: 0 .5rem;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    transform: translateY(-50%);
+    transition: var(--transition);
+}
+input:focus ~ label, select:focus ~ label, textarea:focus ~ label {
+    color: var(--label-focus-color);
+}

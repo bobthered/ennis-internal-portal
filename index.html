@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- Title -->
+    <title>Ennis - Internal Portal</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <navigation>
+            <navItem rushIcon="dashboard"></navItem>
+            <navItem rushIcon="calculator"></navItem>
+        </navigation>
+        <subNavigation>
+            <h3>Calculators</h3>
+        </subNavigation>
+    </header>
+    <app></app>
+    <modalContainer hidden>
+        <modal class="error">
+            <paddingB><message></message></paddingB>
+            <button class="closeModal error">Try Again</button>
+        </modal>
+    </modalContainer>
+    <spinnerContainer hidden><spinner></spinner></spinnerContainer>
+    <!-- JS -->
+    <script src="js/scripts.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+:root {
+    --button-background-color: var(--color-primary);
+    --button-color: #fff;
+    --button-hover-background-color: var(--color-primary-700 );
+    --button-error-background-color: var(--color-error);
+}

@@ -1,0 +1,21 @@
+navigation {
+    background-color: var(--navigation-background-color);
+    display: flex;
+    flex-direction: column;
+    height: var(--navigation-height);
+    width: var(--navigation-width);
+}
+navItem {
+    display: flex;
+    height: var(--navigation-width);
+    width: var(--navigation-width);
+}
+navItem:after {
+    background-color:var(--navItem-after-background-color) !important;
+}
+navItem[current] {
+    background-color: var(--navItem-current-background-color);
+}
+navItem[current]:after {
+    background-color:var(--navItem-current-after-background-color) !important;
+}
