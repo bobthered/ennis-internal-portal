@@ -1,6 +1,8 @@
 flexColumn,
 flexRow {
     display: flex;
+    height: 100%;
+    width: 100%;
 }
 flexColumn[alignItems="center"],
 flexRow[alignItems="center"] {

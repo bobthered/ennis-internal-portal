@@ -1,8 +1,9 @@
 :root {
+    --app-background-color: var(--color-rushGray-100);
     --input-border-radius: .25rem;
     --input-height: 40px;
-    /* --navigation-width: 56px; */
-    --navigation-width: 0;
+    --navigation-width: 56px;
+    --navigation-width: 0px;
     --subNavigation-width: 250px;
     --header-width: calc(var(--navigation-width) + var(--subNavigation-width));
 

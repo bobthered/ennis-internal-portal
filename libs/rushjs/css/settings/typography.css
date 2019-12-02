@@ -1,17 +1,18 @@
 :root {
-    --font-color: var(--color-rushGray-700);
+    --font-color: var(--color-rushGray-600);
     --font-family: 'Poppins', sans-serif;
     --font-weight: 300;
+    --h-color: var(--color-rushGray-700);
     --h1-font-size: 2rem;
-    --h1-font-weight: 400;
+    --h1-font-weight: 600;
     --h2-font-size: 1.5rem;
-    --h2-font-weight: 400;
+    --h2-font-weight: 600;
     --h3-font-size: 1.17rem;
-    --h3-font-weight: 400;
+    --h3-font-weight: 600;
     --h4-font-size: 1.12rem;
-    --h4-font-weight: 400;
+    --h4-font-weight: 600;
     --h5-font-size: .83rem;
-    --h5-font-weight: 400;
+    --h5-font-weight: 600;
     --h6-font-size: .75rem;
-    --h6-font-weight: 400;
+    --h6-font-weight: 600;
 }

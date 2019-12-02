@@ -10,13 +10,13 @@ const pages = {
                 if ( response.status == 200 ) {
                     const resultHTML = await response.text();
                     const pageNode = document.createElement( 'page' );
-                    pageNode.setAttribute( 'id', page );
+                    pageNode.setAttribute( 'id', page.replace( /\//g, '-' ) );
                     pageNode.innerHTML = resultHTML;
                     pages.nodes.app.appendChild( pageNode );
                     const script = document.createElement("script");
                     script.src = `/pages/${page}/script.js`;
                     script.type = 'module';
-                    script.setAttribute( 'page', page );
+                    script.setAttribute( 'page', page.replace( /\//g, '-' ) );
                     pages.nodes.head.appendChild(script);
                 } else {
                     throw `/pages/${page}/page.html - Not Found`;

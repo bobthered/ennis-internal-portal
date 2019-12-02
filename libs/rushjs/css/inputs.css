@@ -37,7 +37,7 @@ textarea:-webkit-autofill:active
 }
 label {
     align-items: center;
-    background-color: var(--input-background-color);
+    /* background-color: var(--label-background-color); */
     color: var(--label-color);
     display: flex;
     font-size: .75rem;
@@ -48,6 +48,14 @@ label {
     top: 0;
     transform: translateY(-50%);
     transition: var(--transition);
+}
+label:before {
+    background-color: var(--label-background-color );
+    content: '';
+    height: 1px;
+    position:absolute;
+    width: calc(100% - 1rem);
+    z-index:-1;
 }
 input:focus ~ label, select:focus ~ label, textarea:focus ~ label {
     color: var(--label-focus-color);

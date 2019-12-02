@@ -1,3 +1,3 @@
 export default [
-    'upsGroundFreightCalculation'
+    'calculators/upsFreight'
 ];

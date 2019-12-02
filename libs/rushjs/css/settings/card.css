@@ -1,4 +1,6 @@
 :root {
+    --card-background-color: #fff;
+    --card-border-radius: .25rem;
     --card-box-shadow : 0 0 20px rgba(0,0,0,.1);
     --card-padding : var(--padding);
 }

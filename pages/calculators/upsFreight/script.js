@@ -16,9 +16,15 @@ const upsAPICredentials = {
    }
 };
 
+// Lets
+let upsAddressClassification = {
+   Code : "0",
+   Description : 'Unclassified',
+};
+
 // Nodes
-const pageNode = document.querySelector( 'page#upsGroundFreightCalculation' );
-const formNode = document.querySelector( 'form#upsGroundFreightCalculation' );
+const pageNode = document.querySelector( 'page#calculators-upsFreight' );
+const formNode = document.querySelector( 'form#calculators-upsFreight' );
 const nonValidatedRateButtonNode = formNode.querySelector( '.nonValidatedRate' );
 const presetNodes = formNode.querySelectorAll( '[name="preset"]');
 const stepsNode = formNode.closest('.steps');
@@ -30,6 +36,7 @@ const candidateColumnNode = pageNode.querySelector( '[step="candidates"] .candid
 const shipFromNode = formNode.querySelector( '.shipFrom' );
 const packageInfoNode = formNode.querySelector( '.packageInfo' );
 const quantityNode = packageInfoNode.querySelector( '[name="quantity"]' );
+const classificationNode = resultsNode.querySelector( 'classification' );
 const request = {
     "RateRequest":{
       "CustomerClassification" : {
@@ -105,6 +112,7 @@ const getRates = async () => {
           // 'https://onlinetools.ups.com/ship/v1/rating/Shop', {
           'https://wwwcie.ups.com/ship/v1/rating/Shop', {
               headers: new Headers({
+                 'Access-Control-Allow-Origin' : '*',
                   'AccessLicenseNumber':upsAPICredentials.serviceAccessToken.AccessLicenseNumber,
                   'Username':upsAPICredentials.usernameToken.Username,
                   'Password':upsAPICredentials.usernameToken.Password,
@@ -113,6 +121,7 @@ const getRates = async () => {
               body: JSON.stringify( request )
           }
       );
+      // console.log( response.headers );
       const result = await response.json();
       return result.RateResponse;
    } catch (error) {
@@ -161,6 +170,10 @@ const formSubmitHandler = async e => {
 }
 const nonValidatedRateButtonClickHandler = e => {
    e.preventDefault();
+   upsAddressClassification = {
+      Code : "0",
+      Description : 'Unclassified',
+   }
    getUPSRate();
 }
 const presetChangeHandler = e => {
@@ -186,6 +199,7 @@ const updateCandidates = candidates => {
    candidates.forEach( candidate => {
       const flexRowNode = document.createElement( 'flexRow' );
       flexRowNode.setAttribute( 'alignItems', 'center' );
+      flexRowNode.setAttribute( 'justify', 'spaceBetween' );
       const address = `${candidate.AddressKeyFormat.AddressLine}, ${candidate.AddressKeyFormat.PoliticalDivision2}, ${candidate.AddressKeyFormat.PoliticalDivision1} ${candidate.AddressKeyFormat.PostcodePrimaryLow}-${candidate.AddressKeyFormat.PostcodeExtendedLow}`;
       flexRowNode.innerHTML = `<address>${address}</address><button candidate="${encodeURIComponent(JSON.stringify(candidate))}">Select</button>`;
       flexRowNode.querySelector( 'button' ).addEventListener( 'click', candidateButtonClickHandler );
@@ -193,6 +207,7 @@ const updateCandidates = candidates => {
    } );
 }
 const updateRates = ratedShipments => {
+   classificationNode.innerHTML = upsAddressClassification.Description;
    const quantity = +quantityNode.value;
    ratedShipments.forEach( ratedShipment => {
       const code = ratedShipment.Service.Code;
@@ -248,7 +263,8 @@ const validateShipTo = async () => {
       } );
    const data = await response.json();
    if ( data.XAVResponse.hasOwnProperty( 'Candidate' ) ) {
-     return data.XAVResponse.Candidate;
+      upsAddressClassification = data.XAVResponse.AddressClassification;
+      return data.XAVResponse.Candidate;
    } else {
      return false;
    }
