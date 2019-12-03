@@ -103,6 +103,12 @@ const candidateButtonClickHandler = e => {
    e.preventDefault();
    const candidate = JSON.parse( decodeURIComponent( e.target.getAttribute( 'candidate' ) ) );
    updateShipTo( candidate.AddressKeyFormat );
+   Rushjs.progressIndicator.create({
+      steps : [
+         'Validating Ship To Address',
+         'Getting Validated Rates from UPS Server'
+      ]
+   });
    getUPSRate();
 }
 const getRates = async () => {
