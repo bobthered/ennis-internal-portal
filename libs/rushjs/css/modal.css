@@ -1,7 +1,12 @@
 modalContainer {
+    align-items: center;
     background-color: rgba(0,0,0,.7);
+    box-sizing: border-box;
+    display: flex;
     height: 100vh;
+    justify-content: center;
     left: 0;
+    padding: 1rem;
     position: fixed;
     top: 0;
     width: 100vw;
@@ -15,11 +20,7 @@ modal {
     background-color: #fff;
     display: flex;
     flex-direction: column;
-    left: 50%;
     padding: var(--padding);
-    position: absolute;
-    top: 50%;
-    transform: translate( -50%, -50% );
 }
 modal message {
     line-height: 1.5rem;

@@ -129,9 +129,9 @@ const getRates = async () => {
    }
 }
 const getUPSRate = async() => {
-   Rushjs.spinner.show();
    updateUPSData();
    const rateResponse = await getRates();
+   Rushjs.progressIndicator.destroy();
    if( typeof rateResponse == 'string' ) {
       Rushjs.modal.error( 'Rates are temporarily unavailable.  Check again in a few minutes.  This error has been logged.  If this continues to be an issue, please contact your administrator.' );
    } else if ( typeof rateResponse == 'undefined' ) {
@@ -140,25 +140,24 @@ const getUPSRate = async() => {
       updateRates(rateResponse.RatedShipment);
       setStep('results');
    }
-   Rushjs.spinner.hide();
 }
 const getValidatedRate = async () => {
-   Rushjs.spinner.show();
    const validAddress = await validateShipTo();
    switch( typeof validAddress) {
       case 'boolean' :
-         Rushjs.spinner.hide();
+         Rushjs.progressIndicator.destroy();
          Rushjs.modal.error( 'We could not validate the supplied address, nor find any possible candidates.' );
          break;
       case 'object' :
          switch( validAddress.length ) {
             case undefined:
+               Rushjs.progressIndicator.update.currentStep(1);
                getUPSRate();
                break;
             default :
                updateCandidates( validAddress );
                setStep('candidates');
-               Rushjs.spinner.hide();
+               Rushjs.progressIndicator.destroy();
                break;
          }
          break;
@@ -166,13 +165,22 @@ const getValidatedRate = async () => {
 }
 const formSubmitHandler = async e => {
    e.preventDefault();
+   Rushjs.progressIndicator.create({
+      steps : [
+         'Validating Ship To Address',
+         'Getting Validated Rates from UPS Server'
+      ]
+   });
    getValidatedRate();
 }
 const nonValidatedRateButtonClickHandler = e => {
    e.preventDefault();
+   Rushjs.progressIndicator.create({
+      steps : ['Getting Non-Validated Rates From UPS Server']
+   });
    upsAddressClassification = {
       Code : "0",
-      Description : 'Unclassified',
+      Description : 'Not-Classified',
    }
    getUPSRate();
 }
@@ -255,18 +263,31 @@ const validateShipTo = async () => {
        }
      }
    };
-   const response = await fetch( 
-      corsAnywhereURL + 
-      'https://onlinetools.ups.com/rest/XAV', {
-         method : 'POST',
-         body   : JSON.stringify( _upsBody )
-      } );
-   const data = await response.json();
-   if ( data.XAVResponse.hasOwnProperty( 'Candidate' ) ) {
-      upsAddressClassification = data.XAVResponse.AddressClassification;
-      return data.XAVResponse.Candidate;
-   } else {
-     return false;
+   try {
+      const response = await fetch( 
+         corsAnywhereURL + 
+         'https://onlinetools.ups.com/rest/XAV', {
+            headers : {
+               'Access-Control-Allow-Headers' : 'Origin, X-Requested-With, Content-Type, Accept',
+               'Access-Control-Allow-Methods' : 'POST',
+               'Access-Control-Allow-Origin' : '*',
+               'Content-Type' : 'application/json',
+            },
+            method : 'POST',
+            body   : JSON.stringify( _upsBody )
+         } );
+      const data = await response.json();
+      console.log(data);
+      if ( data.XAVResponse.hasOwnProperty( 'Candidate' ) ) {
+         upsAddressClassification = data.XAVResponse.AddressClassification;
+         return data.XAVResponse.Candidate;
+      } else {
+        return false;
+      }
+   } catch (error ) {
+      Rushjs.progressIndicator.destroy();
+      Rushjs.modal.error( 'UPS Rate Server is temporarily down.  Please try again in a few minutes.')
+      console.log (error);
    }
  };
 
