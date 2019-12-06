@@ -3,7 +3,7 @@ import * as Rushjs from '/libs/rushjs/js/rush.js';
 import addresses from '/js/models/addresses.js';
 
 // Consts
-const corsAnywhereURL = 'https://cors-anywhere.herokuapp.com/';
+const corsAnywhereURL = 'https://floating-hamlet-95246.herokuapp.com/';
 const discount = .1869;
 // const discount = .0;
 const upsAPICredentials = {
@@ -274,6 +274,7 @@ const validateShipTo = async () => {
          corsAnywhereURL + 
          'https://onlinetools.ups.com/rest/XAV', {
             headers : {
+               'origin' : 'x-requested-with',
                'Access-Control-Allow-Headers' : 'Origin, X-Requested-With, Content-Type, Accept',
                'Access-Control-Allow-Methods' : 'POST',
                'Access-Control-Allow-Origin' : '*',
@@ -282,8 +283,9 @@ const validateShipTo = async () => {
             method : 'POST',
             body   : JSON.stringify( _upsBody )
          } );
+      console.log( response );
       const data = await response.json();
-      console.log(data);
+      // console.log(data);
       if ( data.XAVResponse.hasOwnProperty( 'Candidate' ) ) {
          upsAddressClassification = data.XAVResponse.AddressClassification;
          return data.XAVResponse.Candidate;
