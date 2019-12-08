@@ -1,9 +1,15 @@
 const pages = {
-    nodes : {
-        app : document.querySelector( 'app' ),
-        head : document.querySelector( 'head' ),
+    append : {
+        container : () => {
+            if ( pages.nodes.container == null ) {
+                const containerNode = document.createElement( 'pageContainer' );
+                pages.nodes.container = containerNode;
+                pages.nodes.app.appendChild( pages.nodes.container );
+            }
+        }
     },
     load : arr => {
+        pages.append.container();
         arr.forEach( async page => {
             try {
                 const response = await fetch( `/pages/${page}/page.html`);
@@ -12,7 +18,7 @@ const pages = {
                     const pageNode = document.createElement( 'page' );
                     pageNode.setAttribute( 'id', page.replace( /\//g, '-' ) );
                     pageNode.innerHTML = resultHTML;
-                    pages.nodes.app.appendChild( pageNode );
+                    pages.nodes.container.appendChild( pageNode );
                     const script = document.createElement("script");
                     script.src = `/pages/${page}/script.js`;
                     script.type = 'module';
@@ -25,6 +31,11 @@ const pages = {
                 console.log( error );
             }
         });
-    }
+    },
+    nodes : {
+        app : document.querySelector( 'app' ),
+        head : document.querySelector( 'head' ),
+        container : document.querySelector( 'pageContainer' ),
+    },
 }
 export default pages;
