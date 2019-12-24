@@ -284,22 +284,23 @@ const validateShipTo = async () => {
      }
    };
    try {
-      const response = await fetch(
-         'http://127.0.0.1:3000', {
+      const response = await fetch( 
+         corsAnywhereURL + 
+         'https://onlinetools.ups.com/rest/XAV', {
+         // 'http://127.0.0.1:5000/', {
             headers : {
+               'origin' : 'x-requested-with',
+               'Access-Control-Allow-Headers' : 'Origin, X-Requested-With, Content-Type, Accept',
+               'Access-Control-Allow-Methods' : 'POST',
+               'Access-Control-Allow-Origin' : '*',
                'Content-Type' : 'application/json',
             },
             method : 'POST',
-            body : JSON.stringify({
-               'address' : '352 Center Street',
-               'city'    : 'Caledonia',
-               'state'   : 'NY',
-               'zip'     : '14423',
-            }),
-         }
-      );
-      let data = await response.json();
-      data = JSON.parse( data );
+            body   : JSON.stringify( _upsBody )
+         } );
+      // console.log( response );
+      const data = await response.json();
+      // console.log(data);
       if ( data.XAVResponse.hasOwnProperty( 'Candidate' ) ) {
          upsAddressClassification = data.XAVResponse.AddressClassification;
          return data.XAVResponse.Candidate;
@@ -311,7 +312,7 @@ const validateShipTo = async () => {
       Rushjs.modal.error( 'UPS Rate Server is temporarily down.  Please try again in a few minutes.')
       console.log (error);
    }
- };
+};
 
 formNode.addEventListener( 'submit', formSubmitHandler );
 nonValidatedRateButtonNode.addEventListener( 'click', nonValidatedRateButtonClickHandler );
