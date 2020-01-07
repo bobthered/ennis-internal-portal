@@ -6,6 +6,15 @@ import addresses from '/js/models/addresses.js';
 const corsAnywhereURL = 'https://bobthered-cors-anywhere.herokuapp.com/';
 const discount = .1869;
 // const discount = .0;
+const upsServiceDescriptions = {
+   '03' : 'UPS Ground',
+   '12' : 'UPS 3 Day Select',
+   '02' : 'UPS 2nd Day',
+   '59' : 'UPS 2nd Day Air A.M.',
+   '13' : 'UPS Next Day Air Saver',
+   '01' : 'UPS Next Day Air',
+   '14' : 'UPS Next Day Air Early',
+};
 const upsAPICredentials = {
    serviceAccessToken : {
       'AccessLicenseNumber':'4D5DFA30E51E44B2',
@@ -223,14 +232,19 @@ const updateCandidates = candidates => {
 const updateRates = ratedShipments => {
    classificationNode.innerHTML = upsAddressClassification.Description;
    const quantity = +quantityNode.value;
+   const ratesNode = resultsNode.querySelector( '.rates' );
+   let flexRows = [];
    ratedShipments.forEach( ratedShipment => {
-      const code = ratedShipment.Service.Code;
-      const publishedRate = parseFloat( ratedShipment.TotalCharges.MonetaryValue );
-      const customerRate = ( publishedRate * quantity / ( 1 + discount ) ).toFixed( 2 );
-      const rowNode = resultsNode.querySelector( `[serviceCode="${code}"]`);
-      const rateNode = rowNode.querySelector( 'rate' );
-      rateNode.innerHTML = `$${customerRate}`;
+      flexRows.push([
+         ratedShipment.Service.Code,
+         upsServiceDescriptions[ratedShipment.Service.Code],
+         ( parseFloat( ratedShipment.TotalCharges.MonetaryValue ) * quantity / ( 1 + discount ) ).toFixed( 2 )
+      ]);
    } );
+   flexRows = flexRows.sort( ( a, b ) => +a[2] - +b[2] );
+   ratesNode.innerHTML = flexRows
+      .map( row =>`<flexRow justify="spaceBetween" serviceCode="${row[0]}"><description>${row[1]}</description><rate>$${row[2]}</rate></flexRow>`)
+      .join( '\n' );
 }
 const updateShipTo = address => {
    shipToNode.querySelector('[name="address"]').value = address.AddressLine;
@@ -270,36 +284,23 @@ const validateShipTo = async () => {
      }
    };
    try {
-      const response = await fetch(
-         'http://127.0.0.1:3000', {
+      const response = await fetch( 
+         corsAnywhereURL + 
+         'https://onlinetools.ups.com/rest/XAV', {
+         // 'http://127.0.0.1:5000/', {
             headers : {
+               'origin' : 'x-requested-with',
+               'Access-Control-Allow-Headers' : 'Origin, X-Requested-With, Content-Type, Accept',
+               'Access-Control-Allow-Methods' : 'POST',
+               'Access-Control-Allow-Origin' : '*',
                'Content-Type' : 'application/json',
             },
             method : 'POST',
-            body : JSON.stringify({
-               'address' : '352 Center Street',
-               'city'    : 'Caledonia',
-               'state'   : 'NY',
-               'zip'     : '14423',
-            }),
-         }
-      );
-      // const response = await fetch( 
-      //    // corsAnywhereURL + 
-      //    // 'https://onlinetools.ups.com/rest/XAV', {
-      //    'http://127.0.0.1:3000/', {
-      //       headers : {
-      //          'origin' : 'x-requested-with',
-      //          'Access-Control-Allow-Headers' : 'Origin, X-Requested-With, Content-Type, Accept',
-      //          'Access-Control-Allow-Methods' : 'POST',
-      //          'Access-Control-Allow-Origin' : '*',
-      //          'Content-Type' : 'application/json',
-      //       },
-      //       method : 'POST',
-      //       body   : JSON.stringify( _upsBody )
-      //    } );
-      let data = await response.json();
-      data = JSON.parse( data );
+            body   : JSON.stringify( _upsBody )
+         } );
+      // console.log( response );
+      const data = await response.json();
+      // console.log(data);
       if ( data.XAVResponse.hasOwnProperty( 'Candidate' ) ) {
          upsAddressClassification = data.XAVResponse.AddressClassification;
          return data.XAVResponse.Candidate;
@@ -311,7 +312,7 @@ const validateShipTo = async () => {
       Rushjs.modal.error( 'UPS Rate Server is temporarily down.  Please try again in a few minutes.')
       console.log (error);
    }
- };
+};
 
 formNode.addEventListener( 'submit', formSubmitHandler );
 nonValidatedRateButtonNode.addEventListener( 'click', nonValidatedRateButtonClickHandler );

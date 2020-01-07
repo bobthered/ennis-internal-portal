@@ -197,23 +197,31 @@
                 </candidates>
                 <results hidden step="results">
                     <flexColumn>
-                        <card>
-                            <flexColumn>
-                                <h3>Classification</h3>
-                                <classification>Residential</classification>
-                            </flexColumn>
-                        </card>
+                        <flexRow>
+                            <card>
+                                <flexColumn>
+                                    <h3>Address</h3>
+                                    <address></address>
+                                </flexColumn>
+                            </card>
+                            <card>
+                                <flexColumn>
+                                    <h3>Classification</h3>
+                                    <classification>Residential</classification>
+                                </flexColumn>
+                            </card>
+                        </flexRow>
                         <card>
                             <flexColumn>
                                 <flexRow><h3>Rate</h3></flexRow>
                                 <flexColumn class="rates">
 
                                 </flexColumn>
-                                <flexRow justify="center">
-                                    <a href="#" class="button quoteAgain">New Quote</a>
-                                </flexRow>
                             </flexColumn>
                         </card>
+                        <flexRow justify="center">
+                            <a href="#" class="button quoteAgain">New Quote</a>
+                        </flexRow>
                     </flexColumn>
                 </results>
             </div>

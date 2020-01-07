@@ -3,7 +3,6 @@ import * as Rushjs from '/libs/rushjs/js/rush.js';
 import addresses from '/js/models/addresses.js';
 
 // Consts
-const corsAnywhereURL = 'https://bobthered-cors-anywhere.herokuapp.com/';
 const discount = .1869;
 // const discount = .0;
 const upsServiceDescriptions = {
@@ -15,207 +14,153 @@ const upsServiceDescriptions = {
    '01' : 'UPS Next Day Air',
    '14' : 'UPS Next Day Air Early',
 };
-const upsAPICredentials = {
-   serviceAccessToken : {
-      'AccessLicenseNumber':'4D5DFA30E51E44B2',
-   },
-   usernameToken : {
-      'Username':'bobmcaleavey',
-      'Password':'Superma3+',
-   }
-};
+// const upsRateURL = 'http://localhost:5000/api/v1/rate';
+// const upsValidateURL = 'http://localhost:5000/api/v1/validate';
+const upsRateURL = 'https://bobthered-ups.herokuapp.com/api/v1/rate';
+const upsValidateURL = 'https://bobthered-ups.herokuapp.com/api/v1/validate';
 
 // Lets
-let upsAddressClassification = {
-   Code : "0",
-   Description : 'Unclassified',
-};
 
 // Nodes
 const pageNode = document.querySelector( 'page#calculators-upsFreight' );
-const formNode = document.querySelector( 'form#calculators-upsFreight' );
+const formNode = pageNode.querySelector( 'form#calculators-upsFreight' );
 const nonValidatedRateButtonNode = formNode.querySelector( '.nonValidatedRate' );
-const presetNodes = formNode.querySelectorAll( '[name="preset"]');
 const stepsNode = formNode.closest('.steps');
 const stepNodes = stepsNode.querySelectorAll(':scope > *');
-const resultsNode = pageNode.querySelector( '[step="results"]');
-const quoteAgainButtonNodes = pageNode.querySelectorAll( '.quoteAgain' );
-const shipToNode = formNode.querySelector( '.shipTo' );
+const presetNodes = formNode.querySelectorAll( '[name="preset"]');
 const candidateColumnNode = pageNode.querySelector( '[step="candidates"] .candidateList');
-const shipFromNode = formNode.querySelector( '.shipFrom' );
+const quoteAgainButtonNodes = pageNode.querySelectorAll( '.quoteAgain' );
 const packageInfoNode = formNode.querySelector( '.packageInfo' );
 const quantityNode = packageInfoNode.querySelector( '[name="quantity"]' );
-const classificationNode = resultsNode.querySelector( 'classification' );
-const request = {
-    "RateRequest":{
-      "CustomerClassification" : {
-        "Code" : "04"
-      },
-       "request":{
-          "SubVersion":"1703",
-          "TransactionReference":{
-             "CustomerContext":" "
-          }
-       },
-       "Shipment":{
-          "ShipmentRatingOptions":{
-             "UserLevelDiscountIndicator":"FALSE"
-          },
-          "Shipper":{
-             "Address":{
-                "AddressLine":[],
-                "City":"Caledonia",
-                "StateProvinceCode":"NY",
-                "PostalCode":"14423",
-                "CountryCode":"US"
-             }
-          },
-          "ShipTo":{
-             "Address":{
-                "AddressLine":[],
-                "City":"Wylie",
-                "StateProvinceCode":"TX",
-                "PostalCode":"75098",
-                "CountryCode":"US"
-             }
-          },
-          "ShipFrom":{
-             "Address":{
-                "AddressLine":[],
-                "City":"Caledonia",
-                "StateProvinceCode":"NY",
-                "PostalCode":"14423",
-                "CountryCode":"US"
-             }
-          },
-          "Service":{
-             "Code":"03",
-             "Description":"Service Code Description"
-          },
-          "Package":{
-             "PackagingType":{
-                "Code":"02",
-                "Description":"Rate"
-             },
-             "PackageWeight":{
-                "UnitOfMeasurement":{
-                   "Code":"Lbs",
-                   "Description":"pounds"
-                },
-                "Weight":"17.4"
-             }
-          }
-       }
-    }
-  };
+const weightNode = packageInfoNode.querySelector( '[name="weight"]' );
+const resultsNode = pageNode.querySelector( '[step="results"]' );
+const resultsAddressNode = resultsNode.querySelector( 'address' );
+const resultsClassificationNode = resultsNode.querySelector( 'classification' );
+const resultsRatesNode = resultsNode.querySelector( '.rates' );
+
+// Functions
 const candidateButtonClickHandler = e => {
-   e.preventDefault();
    const candidate = JSON.parse( decodeURIComponent( e.target.getAttribute( 'candidate' ) ) );
-   updateShipTo( candidate.AddressKeyFormat );
+   const address = {
+      'address' : candidate.AddressKeyFormat.AddressLine,
+      'city' : candidate.AddressKeyFormat.PoliticalDivision2,
+      'state' : candidate.AddressKeyFormat.PoliticalDivision1,
+      'zip' : candidate.AddressKeyFormat.PostcodePrimaryLow,
+   };
    Rushjs.progressIndicator.create({
       steps : [
          'Validating Ship To Address',
          'Getting Validated Rates from UPS Server'
       ]
    });
-   getUPSRate();
+   getValidatedRate( address );
 }
-const getRates = async () => {
+const formSubmitHandler = e => {
+   e.preventDefault();
+   const address = {
+      'address' : formNode.querySelector( '.shipTo input[name="address"]').value,
+      'city' : formNode.querySelector( '.shipTo input[name="city"]').value,
+      'state' : formNode.querySelector( '.shipTo select[name="state"]').value,
+      'zip' : formNode.querySelector( '.shipTo input[name="zip"]').value,
+   };
+   getValidatedRate( address );
+}
+const getUPSRate = async candidate => {
+   const shipToAddress = {
+      'address' : candidate.AddressKeyFormat.AddressLine,
+      'city' : candidate.AddressKeyFormat.PoliticalDivision2,
+      'state' : candidate.AddressKeyFormat.PoliticalDivision1,
+      'zip' : candidate.AddressKeyFormat.PostcodePrimaryLow,
+   }
+   const rateInfo = {
+      shipFrom : {
+         'address' : formNode.querySelector( '.shipFrom input[name="address"]').value,
+         'city' : formNode.querySelector( '.shipFrom input[name="city"]').value,
+         'state' : formNode.querySelector( '.shipFrom select[name="state"]').value,
+         'zip' : formNode.querySelector( '.shipFrom input[name="zip"]').value,
+      },
+      shipTo : shipToAddress,
+      weight : weightNode.value
+   };
    try {
       const response = await fetch(
-          corsAnywhereURL +
-          // 'https://onlinetools.ups.com/ship/v1/rating/Shop', {
-          'https://wwwcie.ups.com/ship/v1/rating/Shop', {
-              headers: new Headers({
-                 'Access-Control-Allow-Origin' : '*',
-                  'AccessLicenseNumber':upsAPICredentials.serviceAccessToken.AccessLicenseNumber,
-                  'Username':upsAPICredentials.usernameToken.Username,
-                  'Password':upsAPICredentials.usernameToken.Password,
-              }),
-              method : 'POST',
-              body: JSON.stringify( request )
-          }
+         upsRateURL, {
+            body : JSON.stringify( rateInfo ),
+            headers : {
+               'Content-Type' : 'application/json',
+            },
+            method : 'POST',
+         }
       );
-      // console.log( response.headers );
-      const result = await response.json();
-      return result.RateResponse;
+      const data = await response.json();
+      return data.RateResponse.RatedShipment;
    } catch (error) {
-      return error;
+      Rushjs.progressIndicator.destroy();
+      Rushjs.modal.error( 'UPS Rate Server is temporarily down.  Please try again in a few minutes.')
+      console.log (error);
    }
 }
-const getUPSRate = async() => {
-   updateUPSData();
-   const rateResponse = await getRates();
-   Rushjs.progressIndicator.destroy();
-   if( typeof rateResponse == 'string' ) {
-      Rushjs.modal.error( 'Rates are temporarily unavailable.  Check again in a few minutes.  This error has been logged.  If this continues to be an issue, please contact your administrator.' );
-   } else if ( typeof rateResponse == 'undefined' ) {
-      Rushjs.modal.error( 'We could not calculate rates for the supplied information.<br><br>Please look over the shipping and package information and try again.');
-   } else {
-      updateRates(rateResponse.RatedShipment);
-      setStep('results');
-   }
-}
-const getValidatedRate = async () => {
-   const validAddress = await validateShipTo();
-   switch( typeof validAddress) {
-      case 'boolean' :
+const getValidatedRate = async address => {
+   Rushjs.progressIndicator.create({
+      steps : [
+         'Validating Ship To Address',
+         'Getting Validated Rates from UPS Server'
+      ]
+   });
+   const validation = await validateAddress( address );
+   switch ( validation.status ) {
+      case 'No Candidates':
          Rushjs.progressIndicator.destroy();
          Rushjs.modal.error( 'We could not validate the supplied address, nor find any possible candidates.' );
          break;
-      case 'object' :
-         switch( validAddress.length ) {
-            case undefined:
-               Rushjs.progressIndicator.update.currentStep(1);
-               getUPSRate();
-               break;
-            default :
-               updateCandidates( validAddress );
-               setStep('candidates');
-               Rushjs.progressIndicator.destroy();
-               break;
-         }
+      case 'Multiple Candidates':
+         Rushjs.progressIndicator.destroy();
+         updateCandidates( Array.isArray(validation.candidates) ? validation.candidates : [validation.candidates] );
+         setStep('candidates');
+         break;
+      default:
+         Rushjs.progressIndicator.update.currentStep(1);
+         const rates = await getUPSRate( validation.candidate );
+         updateResults( validation.candidate, rates );
          break;
    }
 }
-const formSubmitHandler = async e => {
-   e.preventDefault();
-   Rushjs.progressIndicator.create({
-      steps : [
-         'Validating Ship To Address',
-         'Getting Validated Rates from UPS Server'
-      ]
-   });
-   getValidatedRate();
-}
-const nonValidatedRateButtonClickHandler = e => {
+const nonValidatedRateButtonClickHandler = async e => {
    e.preventDefault();
    Rushjs.progressIndicator.create({
       steps : ['Getting Non-Validated Rates From UPS Server']
    });
-   upsAddressClassification = {
-      Code : "0",
-      Description : 'Not-Classified',
-   }
-   getUPSRate();
+   const candidate = {
+      AddressClassification: {Code: "0", Description: "Unclassified"},
+      AddressKeyFormat:{
+         'AddressLine' : formNode.querySelector( '.shipTo input[name="address"]').value,
+         'PoliticalDivision2' : formNode.querySelector( '.shipTo input[name="city"]').value,
+         'PoliticalDivision1' : formNode.querySelector( '.shipTo select[name="state"]').value,
+         'PostcodePrimaryLow' : formNode.querySelector( '.shipTo input[name="zip"]').value,
+      }
+   };
+   candidate.AddressKeyFormat.Region = `${candidate.AddressKeyFormat.PoliticalDivision2} ${candidate.AddressKeyFormat.PoliticalDivision1} ${candidate.AddressKeyFormat.PostcodePrimaryLow}`;
+
+   const rates = await getUPSRate( candidate );
+   updateResults( candidate, rates );
 }
 const presetChangeHandler = e => {
-    const preset = e.target.value;
-    if ( preset != '' ) {
-        const inputNodes = e.target.closest('flexColumn').querySelectorAll( 'input, select:not([name="preset"])' );
-        inputNodes.forEach( inputNode => {
-            const inputName = inputNode.getAttribute( 'name' );
-            inputNode.value = addresses[preset][inputName];
-        } );
-    }
+   const preset = e.target.value;
+   if ( preset != '' ) {
+       const inputNodes = e.target.closest('flexColumn').querySelectorAll( 'input, select:not([name="preset"])' );
+       inputNodes.forEach( inputNode => {
+           const inputName = inputNode.getAttribute( 'name' );
+           inputNode.value = addresses[preset][inputName];
+       } );
+   }
 }
 const quoteAgainButtonClickHandler = e => {
    e.preventDefault();
    setStep('form');
 }
 const setStep = step => {
-    stepNodes.forEach( stepNode => stepNode.setAttribute( 'hidden', '' ) );
-    stepsNode.querySelector( `[step="${step}"]`).removeAttribute( 'hidden' );
+   stepNodes.forEach( stepNode => stepNode.setAttribute( 'hidden', '' ) );
+   stepsNode.querySelector( `[step="${step}"]`).removeAttribute( 'hidden' );
 }
 const updateCandidates = candidates => {
    candidateColumnNode.innerHTML = '';
@@ -229,97 +174,53 @@ const updateCandidates = candidates => {
       candidateColumnNode.appendChild(flexRowNode);
    } );
 }
-const updateRates = ratedShipments => {
-   classificationNode.innerHTML = upsAddressClassification.Description;
+const updateResults = ( candidate, rates ) => {
+   Rushjs.progressIndicator.destroy();
+   setStep( 'results' );
+   resultsAddressNode.innerHTML = `${candidate.AddressKeyFormat.AddressLine}, <br>${candidate.AddressKeyFormat.Region}`;
+   resultsClassificationNode.innerHTML = `${candidate.AddressClassification.Description}`;
    const quantity = +quantityNode.value;
-   const ratesNode = resultsNode.querySelector( '.rates' );
    let flexRows = [];
-   ratedShipments.forEach( ratedShipment => {
+   rates.forEach( rate => {
       flexRows.push([
-         ratedShipment.Service.Code,
-         upsServiceDescriptions[ratedShipment.Service.Code],
-         ( parseFloat( ratedShipment.TotalCharges.MonetaryValue ) * quantity / ( 1 + discount ) ).toFixed( 2 )
+         rate.Service.Code,
+         upsServiceDescriptions[rate.Service.Code],
+         ( parseFloat( rate.TotalCharges.MonetaryValue ) * quantity / ( 1 + discount ) ).toFixed( 2 )
       ]);
-   } );
+   });
    flexRows = flexRows.sort( ( a, b ) => +a[2] - +b[2] );
-   ratesNode.innerHTML = flexRows
+   resultsRatesNode.innerHTML = flexRows
       .map( row =>`<flexRow justify="spaceBetween" serviceCode="${row[0]}"><description>${row[1]}</description><rate>$${row[2]}</rate></flexRow>`)
       .join( '\n' );
 }
-const updateShipTo = address => {
-   shipToNode.querySelector('[name="address"]').value = address.AddressLine;
-   shipToNode.querySelector('[name="city"]').value = address.PoliticalDivision2;
-   shipToNode.querySelector('[name="state"]').value = address.PoliticalDivision1;
-   shipToNode.querySelector('[name="zip"]').value = `${address.PostcodePrimaryLow}-${address.PostcodeExtendedLow}`;
-}
-const updateUPSData = () => {
-    request.RateRequest.Shipment.ShipFrom.Address.AddressLine       = [shipFromNode.querySelector('[name="address"]').value];
-    request.RateRequest.Shipment.ShipFrom.Address.City              = shipFromNode.querySelector('[name="city"]').value;
-    request.RateRequest.Shipment.ShipFrom.Address.StateProvinceCode = shipFromNode.querySelector('[name="state"]').value;
-    request.RateRequest.Shipment.ShipFrom.Address.PostalCode        = shipFromNode.querySelector('[name="zip"]').value;
-    request.RateRequest.Shipment.ShipTo.Address.AddressLine         = [shipToNode.querySelector('[name="address"]').value];
-    request.RateRequest.Shipment.ShipTo.Address.City                = shipToNode.querySelector('[name="city"]').value;
-    request.RateRequest.Shipment.ShipTo.Address.StateProvinceCode   = shipToNode.querySelector('[name="state"]').value;
-    request.RateRequest.Shipment.ShipTo.Address.PostalCode          = shipToNode.querySelector('[name="zip"]').value;
-    request.RateRequest.Shipment.Package.PackageWeight.Weight       = packageInfoNode.querySelector('[name="weight"]').value;
-}
-const validateShipTo = async () => {
-   const _upsBody = {
-     "UPSSecurity":{
-       "UsernameToken": upsAPICredentials.usernameToken,
-       "ServiceAccessToken": upsAPICredentials.serviceAccessToken
-     },
-     "XAVRequest":{
-       "Request":{
-         "RequestOption":"3"
-       },
-       "MaximumListSize":"10",
-       "AddressKeyFormat":{
-         "AddressLine": shipToNode.querySelector( '[name="address"]' ).value,
-         "PoliticalDivision2":shipToNode.querySelector( '[name="city"]' ).value,
-         "PoliticalDivision1":shipToNode.querySelector( '[name="state"]' ).value,
-         "PostcodePrimaryLow":shipToNode.querySelector( '[name="zip"]' ).value,
-         "CountryCode":"US"
-       }
-     }
-   };
+const validateAddress = async address => {
    try {
-      const response = await fetch( 
-         corsAnywhereURL + 
-         'https://onlinetools.ups.com/rest/XAV', {
-         // 'http://127.0.0.1:5000/', {
+      const response = await fetch(
+         upsValidateURL, {
+            body : JSON.stringify( address ),
             headers : {
-               'origin' : 'x-requested-with',
-               'Access-Control-Allow-Headers' : 'Origin, X-Requested-With, Content-Type, Accept',
-               'Access-Control-Allow-Methods' : 'POST',
-               'Access-Control-Allow-Origin' : '*',
                'Content-Type' : 'application/json',
             },
             method : 'POST',
-            body   : JSON.stringify( _upsBody )
-         } );
-      // console.log( response );
+         }
+      );
       const data = await response.json();
-      // console.log(data);
-      if ( data.XAVResponse.hasOwnProperty( 'Candidate' ) ) {
-         upsAddressClassification = data.XAVResponse.AddressClassification;
-         return data.XAVResponse.Candidate;
-      } else {
-        return false;
-      }
-   } catch (error ) {
+      if ( data.XAVResponse.hasOwnProperty( 'NoCandidatesIndicator' ) ) { return { status : 'No Candidates' }; }
+      if ( data.XAVResponse.hasOwnProperty( 'AmbiguousAddressIndicator' ) ) { return { status : 'Multiple Candidates', candidates : data.XAVResponse.Candidate }; }
+      return { status: 'One Candidate', candidate : data.XAVResponse.Candidate };
+   } catch (error) {
       Rushjs.progressIndicator.destroy();
       Rushjs.modal.error( 'UPS Rate Server is temporarily down.  Please try again in a few minutes.')
       console.log (error);
    }
-};
+}
 
+// Node interactions
 formNode.addEventListener( 'submit', formSubmitHandler );
 nonValidatedRateButtonNode.addEventListener( 'click', nonValidatedRateButtonClickHandler );
 presetNodes.forEach( presetNode => {
-    presetNode.addEventListener( 'change', presetChangeHandler );
+   presetNode.addEventListener( 'change', presetChangeHandler );
 } );
-
 quoteAgainButtonNodes.forEach( quoteAgainButtonNode => {
    quoteAgainButtonNode.addEventListener( 'click', quoteAgainButtonClickHandler );
 } );
